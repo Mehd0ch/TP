@@ -1,0 +1,44 @@
+services:
+  registry:
+    image: registry
+    container_name: tp-registry
+    restart: always
+    ports:
+      - "50000:5000"
+    volumes:
+      - registry_volume:/var/lib/registry
+      - ./auth:/auth
+    environment:
+      REGISTRY_AUTH: "htpasswd"
+      REGISTRY_AUTH_HTPASSWD_REALM: "Registry Realm"
+      REGISTRY_AUTH_HTPASSWD_PATH: "/auth/htpasswd"
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: "/var/lib/registry"
+
+  backend:
+    build: ./backend
+    container_name: backend
+    networks:
+      - internal_net
+    volumes:
+      - /var/log/microservice/backend:/app/logs
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    networks:
+      - internal_net
+    volumes:
+      - /var/log/microservice/frontend:/app/logs
+    ports:
+      - "8081:80"
+    restart: always
+
+networks:
+  internal_net:
+    driver: bridge
+
+
+volumes:
+  registry_volume:
