@@ -1,19 +1,17 @@
 #!/bin/bash
 
-cd /tp
-
 curl -fs localhost:50000/v2/_catalog > /dev/null
 if [ $? -ne 0 ]; then
-  docker compose up registry -d
+  docker compose -f /home/med/tp/docker-compose.yml up registry -d
   sleep 3
 fi
 
 echo "------ DEBUT DU BUILD ------"
-docker build -t backend ./backend
+docker build -t backend /home/med/tp/backend
 echo "------ FIN DU BUILD ------"
 
 echo "------- DEBUT DU RUN --------"
-docker compose up backend -d
+docker compose -f /home/med/tp/docker-compose.yaml up backend -d
 echo "------ FIN DU RUN ---------"
 
 sleep 15
